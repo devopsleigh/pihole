@@ -1,0 +1,46 @@
+version: "3"
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "${HTTPPORT}:80/tcp"
+      - "${HTTPSPORT}:443/tcp"
+    environment:
+      - "DNS1=${DOHINTERNALIP}#5053"
+      - "DNS2=${DOHINTERNALIP}#5053"
+    volumes:
+      - /etc/pihole/config:/etc/pihole
+      - /etc/pihole/dnsmasq:/etc/dnsmasq.d
+      - /etc/localtime:/etc/localtime:ro
+    dns:
+      - 127.0.0.1
+      - ${EXTERNALDNS1}
+    networks:
+      default:
+        ipv4_address: ${PIHOLEINTERNALIP}
+    restart: unless-stopped
+
+  cloudflared:
+    image: crazymax/cloudflared:latest
+    container_name: cloudflared
+    hostname: cloudflared
+    ports:
+      - 5053:5053/udp
+      - 5053:5053/tcp
+    environment:
+      - TUNNEL_DNS_UPSTREAM=https://${EXTERNALDNS1}/dns-query,https://${EXTERNALDNS2}/dns-query
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      default:
+        ipv4_address: ${DOHINTERNALIP}
+    restart: unless-stopped
+
+networks:
+  default:
+    external:
+      name: ${NETWORKNAME}
