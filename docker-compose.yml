@@ -4,21 +4,24 @@ services:
     container_name: pihole
     image: pihole/pihole:latest
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "67:67/udp"
-      - "${HTTPPORT}:80/tcp"
-      - "${HTTPSPORT}:443/tcp"
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - ${HTTPPORT}:80/tcp
+      - ${HTTPSPORT}:443/tcp
     environment:
-      - "DNS1=${DOHINTERNALIP}#5053"
-      - "DNS2=${DOHINTERNALIP}#5053"
+      - PIHOLE_DNS_=${DOHINTERNALIP}#5053
+      - ServerIP=${HOSTIP}
+      - DNSSEC=true
+      - REV_SERVER=true
+      - REV_SERVER_DOMAIN=lan
+      - 'REV_SERVER_CIDR=192.168.10.0/24'
     volumes:
       - /etc/pihole/config:/etc/pihole
       - /etc/pihole/dnsmasq:/etc/dnsmasq.d
       - /etc/localtime:/etc/localtime:ro
     dns:
       - 127.0.0.1
-      - ${EXTERNALDNS1}
     networks:
       default:
         ipv4_address: ${PIHOLEINTERNALIP}
