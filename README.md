@@ -17,9 +17,9 @@ Both Pi-hole and Cloudflared are defined within the same docker-compose file, an
     sudo docker network create --driver=bridge --subnet=172.20.53.0/29 --gateway=172.20.53.1 dnsnet
     ```
 
-1. Create a file named `.env` and replace the placeholder values. Note that if you're not running other services on the host or change the network type, the HTTP/S ports do not need to be non-standard as below.
+1. Create a file named `.env` and replace the placeholder values. Create paths that don't already exist. Note that if you're not running other services on the host or change the network type, the HTTP/S ports do not need to be non-standard as below.
 
-    ```plaintext
+    ```conf
     CONFIG=/path/to/persistent/volume/pihole/config
     DNSMASQ=/path/to/persistent/volume/pihole/dnsmasq
     HOSTIP=192.168.0.53
@@ -29,11 +29,19 @@ Both Pi-hole and Cloudflared are defined within the same docker-compose file, an
     PIHOLEINTERNALIP=172.20.53.2
     DOHINTERNALIP=172.20.53.3
     WEBPASSWORD=somethingSecure
-    EXTERNALDNS1=1.1.1.2
-    EXTERNALDNS2=1.0.0.2
+    EXTERNALDNS1=1.1.1.1
+    EXTERNALDNS2=1.0.0.1
     ```
 
-1. Run with `docker-compose up -d`
+1. If you have split your network into subnets, create a file called `02-Custom.conf` in the dnsmasq path. This tells Pi-hole to use the DHCP server (subnet gateways) for internal name resolution. Use the below as a guide, remembering to change the IP addresses for the subnets and gateways:
+
+    ```conf
+    server=/10.168.192.in-addr.arpa/192.168.10.1
+    server=/20.168.192.in-addr.arpa/192.168.20.1
+    server=/30.168.192.in-addr.arpa/192.168.30.1
+    ```
+
+1. Run with `sudo docker-compose up -d`
 1. Test using:
 
     - macOS/Linux: `dig github.com <host IP address>`
