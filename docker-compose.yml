@@ -13,9 +13,6 @@ services:
       - PIHOLE_DNS_=${DOHINTERNALIP}#5053
       - ServerIP=${HOSTIP}
       - DNSSEC=true
-      - REV_SERVER=true
-      - REV_SERVER_DOMAIN=lan
-      - 'REV_SERVER_CIDR=192.168.10.0/24'
     volumes:
       - /etc/pihole/config:/etc/pihole
       - /etc/pihole/dnsmasq:/etc/dnsmasq.d
@@ -28,20 +25,36 @@ services:
     restart: unless-stopped
 
   cloudflared:
-    image: crazymax/cloudflared:latest
+    image: visibilityspots/cloudflared
     container_name: cloudflared
-    hostname: cloudflared
     ports:
-      - 5053:5053/udp
-      - 5053:5053/tcp
+      - "5053:5053/tcp"
+      - "5053:5053/udp"
     environment:
-      - TUNNEL_DNS_UPSTREAM=https://${EXTERNALDNS1}/dns-query,https://${EXTERNALDNS2}/dns-query
+        PORT: 5053
+        ADDRESS: 0.0.0.0
     volumes:
       - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
     networks:
       default:
         ipv4_address: ${DOHINTERNALIP}
-    restart: unless-stopped
+
+  # cloudflared:
+  #   image: crazymax/cloudflared:latest
+  #   container_name: cloudflared
+  #   hostname: cloudflared
+  #   ports:
+  #     - 5053:5053/udp
+  #     - 5053:5053/tcp
+  #   environment:
+  #     - TUNNEL_DNS_UPSTREAM=https://${EXTERNALDNS1}/dns-query,https://${EXTERNALDNS2}/dns-query
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #   networks:
+  #     default:
+  #       ipv4_address: ${DOHINTERNALIP}
+  #   restart: unless-stopped
 
 networks:
   default:
