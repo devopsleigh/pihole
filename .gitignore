@@ -1,1 +1,3 @@
-.env
+*.env
+config/custom.list
+dnsmasq/05-pihole-custom-cname.conf
