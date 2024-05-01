@@ -1,0 +1,31 @@
+services:
+  pihole:
+    container_name: ${CONTAINER_NAME}
+    image: pihole/pihole:${PIHOLE_VER}
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - ${HTTP_PORT}:80/tcp
+      - ${HTTPS_PORT}:443/tcp
+    environment:
+      - PIHOLE_DNS_=${PIHOLE_DNS}
+      - WEBPASSWORD=${WEB_PASSWORD}
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - DNSSEC=true
+      - DNSMASQ_LISTENING=single
+      - REV_SERVER=true
+      - REV_SERVER_DOMAIN=${REV_SERVER_DOMAIN}
+      - REV_SERVER_TARGET=${REV_SERVER_TARGET}
+      - WEBTHEME=default-darker
+    volumes:
+      - ${CONFIG}:/etc/pihole
+      - ${DNSMASQ}:/etc/dnsmasq.d
+      - /etc/localtime:/etc/localtime:ro
+    dns:
+      - 127.0.0.1
+    restart: unless-stopped
+
+networks:
+  default:
+    name: ${NETWORK_NAME}

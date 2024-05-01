@@ -1,13 +1,8 @@
-# Pi-hole with DoH
+# Pi-hole
 
 ## Description
 
-This solution provides:
-
-- Network-wide ad blocking and local DNS services using Pi-hole
-- Encrypted DNS via DNS over HTTPS (DoH) using Cloudflared
-
-Both Pi-hole and Cloudflared are defined within the same docker-compose file, and run within a Docker network.
+This solution provides network-wide ad blocking and local DNS services using Pi-hole.
 
 ## Installation
 
@@ -19,13 +14,13 @@ Both Pi-hole and Cloudflared are defined within the same docker-compose file, an
     systemctl restart systemd-resolved
     ```
 
-2. Create an external Docker network. Here, it's named `dockernet`. Pick whatever name and address space suits your implementation.
+2. Create a Docker network. Here, it's named `pihole` and I'm using "bridge" mode.
 
     ```bash
-    sudo docker network create --driver=bridge dockernet
+    sudo docker network create --driver=bridge pihole
     ```
 
-3. Copy or rename `.env.example` to `.env` and replace the placeholder values. Create paths that don't already exist. Note that if you're not running other services on the host or change the network type, the HTTP/S ports do not need to be non-standard as per the example.
+3. Copy or rename files ending in `.example` and replace the placeholder values. Create paths that don't already exist. Note that if you're not running other services on the host or change the network type, the HTTP/S ports do not need to be non-standard as per the example.
 
 4. If you have split your network into subnets, create a file called `02-Custom.conf` in the dnsmasq path. This tells Pi-hole to use the DHCP server (subnet gateways) for internal name resolution. Use the below as a guide, remembering to change the IP addresses for the subnets and gateways:
 
@@ -42,6 +37,4 @@ Both Pi-hole and Cloudflared are defined within the same docker-compose file, an
     - Linux/macOS: `dig github.com <host IP address>`
     - Windows: `nslookup github.com <host IP address>`
 
-7. Set your network DNS address to the host IP address, and optionally, configure a secondary Pi-hole in case the host is down; note that requests sent directly to an external DNS provider **will not be encrypted**.
-
-8. Navigate to `http://<host IP address>:<HTTP port>/admin`, for example, `http://192.168.0.53:2053/admin` to start configuring Pi-hole.
+7. Navigate to `http://<host IP address>:<HTTP port>/admin`, for example, `http://192.168.0.53:2052/admin` to start configuring Pi-hole.
