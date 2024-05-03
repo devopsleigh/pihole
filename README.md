@@ -38,3 +38,12 @@ This solution provides network-wide ad blocking and local DNS services using Pi-
     - Windows: `nslookup github.com <host IP address>`
 
 7. Navigate to `http://<host IP address>:<HTTP port>/admin`, for example, `http://192.168.0.53:2052/admin` to start configuring Pi-hole.
+
+## Adlists
+
+Description | URL
+-- | --
+Advertising | `https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts`
+Suspicious | `https://v.firebog.net/hosts/static/w3kbl.txt`
+Tracking and telemetry | `https://v.firebog.net/hosts/Easyprivacy.txt`
+Porn | `https://raw.githubusercontent.com/chadmayfield/my-pihole-blocklists/master/lists/pi_blocklist_porn_all.list`
