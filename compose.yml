@@ -7,8 +7,7 @@ services:
       - 53:53/tcp
       - 53:53/udp
       - 67:67/udp
-      - ${HTTP_PORT}:80/tcp
-      - ${HTTPS_PORT}:443/tcp
+      - ${SERVICE_INTERNAL_PORT}:80/tcp
     environment:
       - PIHOLE_DNS_=${PIHOLE_DNS}
       - WEBPASSWORD=${WEB_PASSWORD}
