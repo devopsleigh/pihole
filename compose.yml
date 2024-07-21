@@ -1,7 +1,8 @@
 services:
+
   pihole:
-    container_name: ${CONTAINER_NAME}
-    image: pihole/pihole:${PIHOLE_VER}
+    container_name: ${SERVICE_NAME}
+    image: pihole/pihole:latest
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -15,17 +16,49 @@ services:
       - DNSSEC=true
       - DNSMASQ_LISTENING=single
       - REV_SERVER=true
-      - REV_SERVER_DOMAIN=${REV_SERVER_DOMAIN}
       - REV_SERVER_TARGET=${REV_SERVER_TARGET}
       - WEBTHEME=default-darker
     volumes:
-      - ${CONFIG}:/etc/pihole
-      - ${DNSMASQ}:/etc/dnsmasq.d
+      - ./config:/etc/pihole
+      - ./dnsmasq:/etc/dnsmasq.d
       - /etc/localtime:/etc/localtime:ro
     dns:
       - 127.0.0.1
+      - 1.1.1.1
     restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - homepage.name=Pi-hole 1
+      - homepage.description=Network-wide ad blocker and local DNS (PiServer)
+      - homepage.icon=pi-hole
+      - homepage.href=https://${SERVICE_NAME}.${MY_DOMAIN}
+      - homepage.group=Networking
+      - traefik.enable=true
+      - traefik.http.routers.${SERVICE_NAME}.entrypoints=http
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${MY_DOMAIN}`)
+      - traefik.http.routers.${SERVICE_NAME}.middlewares=default-whitelist@file
+      - traefik.http.routers.${SERVICE_NAME}.middlewares=${SERVICE_NAME}-https-redirect
+      - traefik.http.routers.${SERVICE_NAME}-secure.entrypoints=https
+      - traefik.http.routers.${SERVICE_NAME}-secure.rule=Host(`${SERVICE_NAME}.${MY_DOMAIN}`)
+      - traefik.http.routers.${SERVICE_NAME}-secure.tls=true
+      - traefik.http.routers.${SERVICE_NAME}-secure.service=${SERVICE_NAME}
+      - traefik.http.middlewares.${SERVICE_NAME}-https-redirect.redirectscheme.scheme=https
+      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${SERVICE_INTERNAL_PORT}
+      - traefik.docker.network=proxy
+#  cloudflared:
+#    image: visibilityspots/cloudflared
+#    container_name: cloudflared
+#    ports:
+#      - "5053:5053/tcp"
+#      - "5053:5053/udp"
+#    environment:
+#        PORT: 5053
+#        ADDRESS: 0.0.0.0
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#    restart: unless-stopped
 
 networks:
-  default:
-    name: ${NETWORK_NAME}
+  proxy:
+    external: true
